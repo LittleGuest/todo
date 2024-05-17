@@ -1,29 +1,56 @@
 <script setup>
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 
-// const greetMsg = ref("");
-// const name = ref("");
+const props = defineProps({
+  addLayerIndex: Number,
+});
 
-// async function greet() {
-//   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-//   greetMsg.value = await invoke("greet", { name: name.value });
-// }
+const addProjectForm = reactive({});
+const addProjectValid = ref();
 
-const projectName = ref("");
+async function saveProjectApi() {
+  await invoke("save_project", { name: addProjectForm.name });
+}
+
+const lIndex = ref();
+
 const add = () => {
-  console.log(projectName.value, "projectName");
+  lIndex.value = layer.load(2);
+  addProjectValid.value.validate((isValidate, model, errors) => {
+    if (isValidate) {
+      const res = saveProjectApi();
+      console.log("res", res);
+
+      layer.notifiy({
+        title: "这是标题",
+        content: "默认就是右上，也是用得最多的",
+      });
+
+      layer.close(lIndex.value);
+    }
+  });
 };
 </script>
 
 <template>
-  <lay-form style="padding: 15px">
-    <lay-input
-      v-model="projectName"
-      placeholder="请输入项目名称"
-      :allow-clear="true"
-      :maxlength="100"
-    ></lay-input>
-    <lay-button type="primary" @click="add">添加</lay-button>
+  <lay-form
+    :model="addProjectForm"
+    ref="addProjectValid"
+    style="padding: 15px"
+    required
+  >
+    <lay-form-item label="项目名称" prop="name">
+      <lay-input
+        placeholder="请输入项目名称"
+        :allow-clear="true"
+        :maxlength="100"
+        v-model="addProjectForm.name"
+        required
+      ></lay-input>
+    </lay-form-item>
+    <lay-form-item style="text-align: center">
+      <lay-button type="primary" @click="add">确定</lay-button>
+    </lay-form-item>
   </lay-form>
 </template>

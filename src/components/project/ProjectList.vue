@@ -1,50 +1,32 @@
 <script setup>
-import { ref, reactive, h, resolveComponent } from "vue";
+import { onMounted, ref, h } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { invoke } from "@tauri-apps/api/tauri";
 
+import Project from "./Project.vue";
 import AddProject from "./AddProject.vue";
 
 const router = useRouter();
 const route = useRoute();
 
-const projects = ref([
-  {
-    id: 1,
-    name: "项目名称",
-    status: 0,
-  },
-  {
-    id: 2,
-    name: "项目名称",
-    status: 0,
-  },
-  {
-    id: 3,
-    name: "项目名称",
-    status: 0,
-  },
-  {
-    id: 4,
-    name: "项目名称",
-    status: 0,
-  },
-  {
-    id: 5,
-    name: "这是一个项目名称很长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长的项目",
-    status: 0,
-  },
-]);
+// 项目列表
+const projects = ref([]);
+const addLayerIndex = ref();
+
+async function projectsApi() {
+  projects.value = await invoke("projects", { keyword: null });
+}
+
+onMounted(() => {
+  projectsApi();
+});
 
 const openAddProjectForm = () => {
-  layer.open({
+  addLayerIndex.value = layer.open({
     type: "page",
     title: "添加项目",
-    content: h(AddProject),
+    content: h(AddProject, { addLayerIndex: addLayerIndex.value }),
   });
-};
-
-const toTask = () => {
-  router.push("/task");
 };
 </script>
 
@@ -56,9 +38,7 @@ const toTask = () => {
     >添加项目</lay-button
   >
 
-  <lay-panel v-for="p in projects" :key="p.id" @click="toTask">{{
-    p.name
-  }}</lay-panel>
+  <Project v-for="p in projects" :name="p.name" />
 </template>
 
 <style scoped></style>

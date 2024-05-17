@@ -3,7 +3,10 @@
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![todo::handler::projects])
+        .invoke_handler(tauri::generate_handler![
+            todo::handler::projects,
+            todo::handler::save_project
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

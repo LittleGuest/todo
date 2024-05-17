@@ -4,7 +4,6 @@ import TaskList from "./components/task/TaskList.vue";
 </script>
 
 <template>
-  <router-link to="/" />
   <router-view />
 </template>
 
